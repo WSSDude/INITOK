@@ -49,6 +49,11 @@
 //
 // LIMITATIONS:
 // Right now, can't tokenize Unicode encoded INI files.
+// Another limitation is that there is no comment support whatsoever.
+// One minor limitation affecting parsing of all tokens is that all leading whitespace characters before each token are removed, leading to following minor drawbacks:
+// - spaces inside "[]" are parsed as part of section name, as leading whitespace are removed only from before '[' sign and further spaces are ignored
+// - values can't have leading whitespace, trailing whitespaces characters are left as-is (excluding "end of line" ones)
+// - '=' is expected to be located right behind the entry name, as otherwise trailing whitespace characters will be included as part of entry name
 //
 // USAGE:
 // - zero-initalize new "initok_t" variable

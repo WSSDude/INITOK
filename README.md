@@ -23,7 +23,12 @@ All tokens are writable, so user is able to make modifications to returned token
 Also, as tokens are all by design located in exact position where they occur in given buffer, they can be cached inside some table in some wrapper structure and used directly (provided wrapper owns the buffer and keeps it while tokens are of use). As size of tokens is being returned along its type, if someone creates smart wrapper, there shall be no need for "strlen" and similar functions in it, saving some cycles.
 
 ## LIMITATIONS
-Right now, can't tokenize Unicode encoded INI files.
+Right now, can't tokenize Unicode encoded INI files.  
+Another limitation is that there is no comment support whatsoever.
+One minor limitation affecting parsing of all tokens is that all leading whitespace characters before each token are removed, leading to following minor drawbacks:
+- spaces inside "[]" are parsed as part of section name, as leading whitespace are removed only from before '[' sign and further spaces are ignored
+- values can't have leading whitespace, trailing whitespaces characters are left as-is (excluding "end of line" ones)
+- '=' is expected to be located right behind the entry name, as otherwise trailing whitespace characters will be included as part of entry name
 
 ## LICENSE
 
