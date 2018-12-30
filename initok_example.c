@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
   ini_buff[ini_size] = '\0';
   fclose(ini);
 
-  initok_t initok = {};
+  initok_t initok = { 0 };
   INITOK_SetData(&initok, ini_buff);
   ini_token_t* token = INITOK_GetNextToken(&initok);
   while (token) {
