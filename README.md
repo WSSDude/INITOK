@@ -3,8 +3,9 @@
 ## DESCRIPTION
 
 __INITOK__ provides two header files - one with C implementation and one with C++ wrapper structure.  
-You should include _initok.h_ in C units and _initok.hpp_ in C++ units.
-You will need both, _initok.h_ and _initok.hpp_ for C++ projects. For C-only projects, only _initok.h_ is required.
+You should include _initok.h_ in C units and _initok.hpp_ in C++ units.  
+You will need both, _initok.h_ and _initok.hpp_ for C++ projects. For C-only projects, only _initok.h_ is required.  
+Examples are provided for both, C and C++ in according unit files.
 
 In exactly one unit file, define __INITOK_IMPL__ before including any of above headers to provide definitons for inline functions.  
 

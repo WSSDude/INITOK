@@ -1,5 +1,5 @@
 //
-// INITOK C
+// INITOK C++
 // Created by Andrej Redeky.
 // Copyright (c) 2019 Feldarian Softworks
 //
