@@ -45,14 +45,17 @@ static const char* ITT_TYPE_STR[] = {
 
 int main(int argc, char** argv) {
   if (argc < 2) {
+    std::cerr << "ERROR: Missing commandline argument!" << std::endl;
     std::cout << INITOK_EXAMPLE_USAGE << std::endl;
     return -1;
   }
 
+  std::ios_base::sync_with_stdio(false);
+
   std::ifstream ini(argv[1], std::ios::binary | std::ios::ate);
   if (!ini.is_open()) {
-    std::cout << "ERROR: Couldn't open file " << argv[1] << '!' << std::endl
-              << INITOK_EXAMPLE_USAGE << std::endl;
+    std::cerr << "ERROR: Couldn't open file " << argv[1] << '!' << std::endl;
+    std::cout << INITOK_EXAMPLE_USAGE << std::endl;
     return -2;
   }
   std::streamsize ini_size = ini.tellg();
@@ -60,8 +63,8 @@ int main(int argc, char** argv) {
 
   char* ini_buff = new char[ini_size + 1];
   if (!ini.read(ini_buff, ini_size)) {
-    std::cout << "ERROR: Failed to read from file " << argv[1] <<'!' << std::endl
-              << INITOK_EXAMPLE_USAGE << std::endl;
+    std::cerr << "ERROR: Failed to read from file " << argv[1] <<'!' << std::endl;
+    std::cout << INITOK_EXAMPLE_USAGE << std::endl;
     return -3;
   }
   ini_buff[ini_size] = '\0';

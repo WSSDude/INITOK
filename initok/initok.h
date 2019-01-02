@@ -113,99 +113,102 @@ typedef struct {
 } ini_token_t;
 
 typedef struct {
-  char*       m_Data;
-  char*       m_DataPtr;
-  itt_state_t m_State;
-  ini_token_t m_Token;
+  char*       data;
+  char*       data_ptr;
+  itt_state_t state;
+  ini_token_t token;
 } initok_t;
 
 INITOK_INLINE void INITOK_SetData(initok_t* initok, char* ini_buff) {
   // init assertions
   INITOK_ASSERT(initok);
   // set data
-  initok->m_Data    = ini_buff;
-  initok->m_DataPtr = ini_buff;
-  initok->m_State   = ITT_STATE_SECTENT;
+  initok->data     = ini_buff;
+  initok->data_ptr = ini_buff;
+  initok->state    = ITT_STATE_SECTENT;
 }
 
 INITOK_INLINE ini_token_t* INITOK_GetNextToken(initok_t* initok) {
   // init assertions
-  INITOK_ASSERT(initok && initok->m_Data && initok->m_DataPtr);
+  INITOK_ASSERT(initok && initok->data && initok->data_ptr);
   // if EOF, nothing to parse
-  if (initok->m_State == ITT_STATE_EOF) {
+  if (initok->state == ITT_STATE_EOF) {
     return NULL;
   }
   // temporary variables
-  itt_state_t curState = initok->m_State;
+  itt_state_t curState = initok->state;
   char endC = '\0';
+  char* ptr = initok->data_ptr;
   // cleanup whitespace
-  while (*initok->m_DataPtr && INITOK_ISSPACE(*initok->m_DataPtr)) {
-    ++initok->m_DataPtr;
+  while (*ptr && INITOK_ISSPACE(*ptr)) {
+    ++ptr;
   }
   // check validity
-  if (!initok->m_DataPtr[0]) {
-    initok->m_State = ITT_STATE_EOF;
+  if (!ptr[0]) {
+    initok->state = ITT_STATE_EOF;
     return NULL;
   }
   // null token
-  initok->m_Token.token = NULL;
-  initok->m_Token.size = 0;
-  initok->m_Token.type = ITT_TYPE_NONE;
+  initok->token.token = NULL;
+  initok->token.size  = 0;
+  initok->token.type  = ITT_TYPE_NONE;
   // parse according to state
-  switch (initok->m_State) {
+  switch (initok->state) {
     case ITT_STATE_SECTENT: // section/entry
-      if (*initok->m_DataPtr == '[') {  // section
+      if (*ptr == '[') {  // section
         // beginning of new section - read head
-        ++initok->m_DataPtr;
+        ++ptr;
         // init token
-        initok->m_Token.token = initok->m_DataPtr;
-        initok->m_Token.type = ITT_TYPE_SECTION;
+        initok->token.token = ptr;
+        initok->token.type  = ITT_TYPE_SECTION;
         // set terminator
         endC = ']';
       }
       else {  // entry 
         // init token
-        initok->m_Token.token = initok->m_DataPtr;
-        initok->m_Token.type = ITT_TYPE_ENTRY;
+        initok->token.token = ptr;
+        initok->token.type  = ITT_TYPE_ENTRY;
         // set terminator
         endC = '=';
         // change state
-        initok->m_State = ITT_STATE_VALUE;
+        initok->state = ITT_STATE_VALUE;
       }
     break;
     case ITT_STATE_VALUE: // value
       // init token
-      initok->m_Token.token = initok->m_DataPtr;
-      initok->m_Token.type = ITT_TYPE_VALUE;
+      initok->token.token = ptr;
+      initok->token.type  = ITT_TYPE_VALUE;
       // set terminator
       endC = '\r';
       // change state
-      initok->m_State = ITT_STATE_SECTENT;
+      initok->state = ITT_STATE_SECTENT;
     break;
   }
   // parse token
-  char* ptr=initok->m_DataPtr;
   if (curState == ITT_STATE_SECTENT) {
     while (*ptr && (*ptr != endC) && (*ptr != '\n')) {
-      *ptr=(char)INITOK_TOUPPER((unsigned char)*ptr);
+      *ptr = (char)INITOK_TOUPPER((unsigned char)*ptr);
       ++ptr;
     }
   }
-  while (*ptr && (*ptr != endC) && (*ptr != '\n')) {
-    ++ptr;
+  else {
+    while (*ptr && (*ptr != endC) && (*ptr != '\n')) {
+      ++ptr;
+    }
   }
-  initok->m_DataPtr = ptr;
   // check for EOF
-  if (!initok->m_DataPtr[0]) {
+  if (!ptr[0]) {
     // EOF
-    initok->m_State = ITT_STATE_EOF;
+    initok->state = ITT_STATE_EOF;
   }
-  *initok->m_DataPtr = '\0';
-  initok->m_Token.size = (size_t)(initok->m_DataPtr - initok->m_Token.token) + 1;
-  // advance
-  ++initok->m_DataPtr;
+  // calc token size
+  initok->token.size = (size_t)(ptr - initok->token.token) + 1;
+  // set NULL and advance
+  *(ptr++) = '\0';
+  // assign ptr
+  initok->data_ptr = ptr;
   // return token
-  return &initok->m_Token;
+  return &initok->token;
 }
 
 #ifdef __cplusplus

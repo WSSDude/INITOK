@@ -46,13 +46,15 @@ static const char* ITT_TYPE_STR[] = {
 
 int main(int argc, char** argv) {
   if (argc < 2) {
+    fputs("ERROR: Missing commandline argument!", stderr);
     fputs(INITOK_EXAMPLE_USAGE, stdout);
     return -1;
   }
 
   FILE* ini = fopen(argv[1], "rb");
   if (!ini) {
-    printf("ERROR: Couldn't open file \"%s\"!\n" INITOK_EXAMPLE_USAGE, argv[1]);
+    fprintf(stderr, "ERROR: Couldn't open file \"%s\"!\n", argv[1]);
+    fputs(INITOK_EXAMPLE_USAGE, stdout);
     return -2;
   }
   _fseeki64(ini, 0, SEEK_END);
@@ -61,7 +63,8 @@ int main(int argc, char** argv) {
 
   char* ini_buff = (char*)malloc(ini_size + 1);
   if (fread(ini_buff, 1, ini_size, ini) != ini_size) {
-    printf("ERROR: Failed to read from file \"%s\"!\n" INITOK_EXAMPLE_USAGE, argv[1]);
+    fprintf(stderr, "ERROR: Failed to read from file \"%s\"!\n", argv[1]);
+    fputs(INITOK_EXAMPLE_USAGE, stdout);
     return -3;
   }
   ini_buff[ini_size] = '\0';
@@ -71,7 +74,7 @@ int main(int argc, char** argv) {
   INITOK_SetData(&initok, ini_buff);
   ini_token_t* token = INITOK_GetNextToken(&initok);
   while (token) {
-    printf("TYPE: %s SIZE: %u TOKEN: \"%s\"\n", ITT_TYPE_STR[token->type], (uint32_t)token->size, token->token);
+    fprintf(stdout, "TYPE: %s SIZE: %u TOKEN: \"%s\"\n", ITT_TYPE_STR[token->type], (uint32_t)token->size, token->token);
     token = INITOK_GetNextToken(&initok);
   }
   free(ini_buff);
